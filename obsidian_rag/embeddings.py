@@ -25,6 +25,7 @@ def embed_text(text: str) -> list[float]:
     norm = sum(value * value for value in vec) ** 0.5
     if norm > 0:
         vec = [value / norm for value in vec]
+
     return vec
 
 

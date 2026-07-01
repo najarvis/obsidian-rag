@@ -27,6 +27,7 @@ def build_record(reference: str, content: str) -> dict:
 def append_record(record: dict) -> None:
     path = get_store_path()
     path.parent.mkdir(parents=True, exist_ok=True)
+
     with path.open("a", encoding="utf-8") as file:
         file.write(json.dumps(record) + "\n")
 
@@ -35,14 +36,19 @@ def load_existing_hashes() -> set[str]:
     path = get_store_path()
     if not path.is_file():
         return set()
+
     hashes: set[str] = set()
     with path.open(encoding="utf-8") as file:
         for line in file:
             line = line.strip()
+
             if not line:
                 continue
+
             try:
                 hashes.add(json.loads(line)["text_hash"])
+
             except (json.JSONDecodeError, KeyError):
                 continue
+
     return hashes
