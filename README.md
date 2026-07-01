@@ -46,6 +46,20 @@ Embed and store every markdown (`.md`) file under a directory (recursive). Files
 
 Returns a JSON summary with `indexed`, `skipped`, and `total` counts.
 
+## Tool: `find_related`
+
+Find the stored documents most similar to a piece of text or a document, ranked by cosine similarity (`1.0` = identical direction). Provide exactly one of `text` or `path`. The query's own exact match (same content hash) is excluded from results.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `text`    | no*      | Inline query text |
+| `path`    | no*      | Path to a file to use as the query instead of inline text |
+| `top_n`   | no       | Maximum number of results to return (default `5`) |
+
+*Exactly one of `text` or `path` must be provided.
+
+Returns JSON with `count` and a `results` list of `{reference, score, text_preview, id}` ordered by descending similarity.
+
 ## Environment variables
 
 | Variable               | Default                  | Description |

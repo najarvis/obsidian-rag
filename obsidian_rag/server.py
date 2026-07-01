@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -5,6 +6,7 @@ from mcp.server.fastmcp import FastMCP
 
 from obsidian_rag.embeddings import get_model_name
 from obsidian_rag.indexer import index_directory as index_directory_files
+from obsidian_rag.search import find_related as find_related_docs
 from obsidian_rag.storage import append_record, build_record, get_store_path
 
 mcp = FastMCP("obsidian-rag")
@@ -64,6 +66,40 @@ def index_directory(directory: str) -> str:
             "total": summary["total"],
             "model": get_model_name(),
             "store_path": str(get_store_path().resolve()),
+        }
+    )
+
+
+@mcp.tool()
+def find_related(
+    text: str | None = None, path: str | None = None, top_n: int = 5
+) -> str:
+    """Find the stored documents most similar to a piece of text or a document.
+
+    Provide exactly one of text or path. Results are ranked by cosine
+    similarity (1.0 = identical direction). The query's own exact match
+    (same content hash) is excluded.
+
+    Args:
+        text: Inline query text.
+        path: Path to a file to use as the query instead of inline text.
+        top_n: Maximum number of results to return (default 5).
+    """
+    if (text is None) == (path is None):
+        raise ValueError("Provide exactly one of 'text' or 'path'.")
+
+    if top_n < 1:
+        raise ValueError("top_n must be >= 1.")
+
+    content = resolve_text(path, text) if path is not None else text
+    exclude_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    results = find_related_docs(content, top_n=top_n, exclude_hash=exclude_hash)
+
+    return json.dumps(
+        {
+            "query_reference": path,
+            "count": len(results),
+            "results": results,
         }
     )
 

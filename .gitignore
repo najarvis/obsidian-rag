@@ -14,3 +14,6 @@ data/
 
 # Exploration
 explore/
+
+# Cursor
+.cursor/

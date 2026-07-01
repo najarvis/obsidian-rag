@@ -52,3 +52,25 @@ def load_existing_hashes() -> set[str]:
                 continue
 
     return hashes
+
+
+def load_records() -> list[dict]:
+    path = get_store_path()
+    if not path.is_file():
+        return []
+
+    records: list[dict] = []
+    with path.open(encoding="utf-8") as file:
+        for line in file:
+            line = line.strip()
+
+            if not line:
+                continue
+
+            try:
+                records.append(json.loads(line))
+
+            except json.JSONDecodeError:
+                continue
+
+    return records
